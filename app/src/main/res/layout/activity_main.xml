@@ -11,7 +11,7 @@
     tools:context="com.dpenaskovic.todo.MainActivity">
 
     <Button
-        android:text="ADD ITEM"
+        android:text="@string/add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -24,7 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
-        android:text="Enter a new item"
+        android:text="@string/enter"
         android:ems="10"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"

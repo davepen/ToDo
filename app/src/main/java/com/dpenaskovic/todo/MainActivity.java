@@ -14,11 +14,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class MainActivity extends Activity
+public class MainActivity extends Activity implements View.OnClickListener
 {
     ArrayList<String> items;
     ArrayAdapter<String> itemsAdapter;
     ListView lvItems;
+    EditText etNewItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -27,6 +28,9 @@ public class MainActivity extends Activity
         setContentView(R.layout.activity_main);
 
         readItems();
+
+        etNewItem = (EditText)findViewById(R.id.etNewItem);
+        etNewItem.setOnClickListener(this);
 
         lvItems = (ListView)findViewById(R.id.lvItems);
         itemsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items);
@@ -37,10 +41,9 @@ public class MainActivity extends Activity
 
     public void onAddItem(View v)
     {
-        EditText etNewItem = (EditText)findViewById(R.id.etNewItem);
         String itemText = etNewItem.getText().toString();
         itemsAdapter.add(itemText);
-        etNewItem.setText("");
+        etNewItem.setText(getString(R.string.enter));
         writeItems();
     }
 
@@ -52,11 +55,17 @@ public class MainActivity extends Activity
             public boolean onItemLongClick(AdapterView<?> adapter, View item, int pos, long id)
             {
                 items.remove(pos);
-                itemsAdapter.notifyDataSetChanged();;
+                itemsAdapter.notifyDataSetChanged();
                 writeItems();
                 return true;
             }
         });
+    }
+
+    @Override
+    public void onClick(View v)
+    {
+        etNewItem.setText("");
     }
 
     private void readItems()
@@ -65,11 +74,11 @@ public class MainActivity extends Activity
         File todoFile = new File(filesDir, "todo.txt");
         try
         {
-            items = new ArrayList<String>(FileUtils.readLines(todoFile));
+            items = new ArrayList<>(FileUtils.readLines(todoFile, "UTF-8"));
         }
         catch (IOException ex)
         {
-            items = new ArrayList<String>();
+            items = new ArrayList<>();
         }
     }
 
