@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">ToDo</string>
-    <string name="add">ADD ITEM</string>
+    <string name="add">Add Item</string>
     <string name="enter">Enter a new item</string>
+    <string name="editItemLabel">Edit Item Below</string>
+    <string name="editSaveButton">Save</string>
 </resources>

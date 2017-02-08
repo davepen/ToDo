@@ -1,6 +1,7 @@
 package com.dpenaskovic.todo;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -16,6 +17,8 @@ import java.util.ArrayList;
 
 public class MainActivity extends Activity implements View.OnClickListener
 {
+    private final int REQUEST_CODE_EDIT_ITEM = 10;
+
     ArrayList<String> items;
     ArrayAdapter<String> itemsAdapter;
     ListView lvItems;
@@ -60,12 +63,40 @@ public class MainActivity extends Activity implements View.OnClickListener
                 return true;
             }
         });
+
+        lvItems.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+            {
+                String tappedItemText = itemsAdapter.getItem(position);
+
+                Intent intent = new Intent(MainActivity.this, EditItemActivity.class);
+                intent.putExtra("text", tappedItemText);
+                intent.putExtra("position", position);
+                startActivityForResult(intent, REQUEST_CODE_EDIT_ITEM);
+            }
+        });
+
     }
 
     @Override
     public void onClick(View v)
     {
         etNewItem.setText("");
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        // REQUEST_CODE is defined above
+        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE_EDIT_ITEM)
+        {
+            String name = data.getExtras().getString("text");
+            int code = data.getExtras().getInt("code", 0);
+
+            System.out.println("Store updated text is " + name);
+        }
     }
 
     private void readItems()
