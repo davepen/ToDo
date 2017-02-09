@@ -15,7 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class MainActivity extends Activity implements View.OnClickListener
+public class MainActivity extends Activity
 {
     private final int REQUEST_CODE_EDIT_ITEM = 10;
 
@@ -33,13 +33,14 @@ public class MainActivity extends Activity implements View.OnClickListener
         readItems();
 
         etNewItem = (EditText)findViewById(R.id.etNewItem);
-        etNewItem.setOnClickListener(this);
+        etNewItem.setOnClickListener(new ClickListener());
 
         lvItems = (ListView)findViewById(R.id.lvItems);
+        lvItems.setOnItemLongClickListener(new ItemLongClickListener());
+        lvItems.setOnItemClickListener(new ItemClickListener());
+
         itemsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items);
         lvItems.setAdapter(itemsAdapter);
-
-        setupListViewListener();
     }
 
     public void onAddItem(View v)
@@ -50,52 +51,19 @@ public class MainActivity extends Activity implements View.OnClickListener
         writeItems();
     }
 
-    private void setupListViewListener()
-    {
-        lvItems.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener()
-        {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> adapter, View item, int pos, long id)
-            {
-                items.remove(pos);
-                itemsAdapter.notifyDataSetChanged();
-                writeItems();
-                return true;
-            }
-        });
-
-        lvItems.setOnItemClickListener(new AdapterView.OnItemClickListener()
-        {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-            {
-                String tappedItemText = itemsAdapter.getItem(position);
-
-                Intent intent = new Intent(MainActivity.this, EditItemActivity.class);
-                intent.putExtra("text", tappedItemText);
-                intent.putExtra("position", position);
-                startActivityForResult(intent, REQUEST_CODE_EDIT_ITEM);
-            }
-        });
-
-    }
-
     @Override
-    public void onClick(View v)
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent)
     {
-        etNewItem.setText("");
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        // REQUEST_CODE is defined above
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE_EDIT_ITEM)
         {
-            String name = data.getExtras().getString("text");
-            int code = data.getExtras().getInt("code", 0);
+            String updatedText = intent.getExtras().getString("text");
+            int position = intent.getExtras().getInt("position", 0);
 
-            System.out.println("Store updated text is " + name);
+            items.remove(position);
+            itemsAdapter.insert(updatedText, position);
+            itemsAdapter.notifyDataSetChanged();
+
+            writeItems();
         }
     }
 
@@ -124,6 +92,38 @@ public class MainActivity extends Activity implements View.OnClickListener
         catch (IOException ex)
         {
             ex.printStackTrace();
+        }
+    }
+
+    private class ClickListener implements View.OnClickListener
+    {
+        public void onClick(View v)
+        {
+            etNewItem.setText("");
+        }
+    }
+
+    private class ItemClickListener implements AdapterView.OnItemClickListener
+    {
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+        {
+            String tappedItemText = itemsAdapter.getItem(position);
+
+            Intent intent = new Intent(MainActivity.this, EditItemActivity.class);
+            intent.putExtra("text", tappedItemText);
+            intent.putExtra("position", position);
+            startActivityForResult(intent, REQUEST_CODE_EDIT_ITEM);
+        }
+    }
+
+    private class ItemLongClickListener implements AdapterView.OnItemLongClickListener
+    {
+        public boolean onItemLongClick(AdapterView<?> adapter, View item, int pos, long id)
+        {
+            items.remove(pos);
+            itemsAdapter.notifyDataSetChanged();
+            writeItems();
+            return true;
         }
     }
 }

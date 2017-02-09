@@ -11,6 +11,7 @@ public class EditItemActivity extends Activity
 {
     EditText etItem;
     Button buttonSave;
+    int editItemArrayPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -18,30 +19,27 @@ public class EditItemActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_item);
 
-
         etItem = (EditText)findViewById(R.id.editText2);
         buttonSave = (Button)findViewById(R.id.button);
-        buttonSave.setOnClickListener(new Button.OnClickListener()
-        {
-            public void onClick(View v)
-            {
-                Intent data = new Intent();
-                data.putExtra("text", etItem.getText().toString());
-                data.putExtra("code", 200);
-
-                // Activity finished ok, return the data
-                setResult(RESULT_OK, data);
-                finish();
-            }
-        });
+        buttonSave.setOnClickListener(new SaveButtonClickListener());
 
         String textToEdit = getIntent().getStringExtra("text");
-        int position = getIntent().getIntExtra("position", 0);
+        editItemArrayPosition = getIntent().getIntExtra("position", 0);
 
         etItem.setText(textToEdit);
         etItem.setSelection(textToEdit.length());
+    }
 
-        System.out.println(textToEdit);
-        System.out.println(position);
+    private class SaveButtonClickListener implements View.OnClickListener
+    {
+        public void onClick(View view)
+        {
+            Intent intent = new Intent();
+            intent.putExtra("text", etItem.getText().toString());
+            intent.putExtra("position", editItemArrayPosition);
+
+            setResult(RESULT_OK, intent);
+            finish();
+        }
     }
 }
