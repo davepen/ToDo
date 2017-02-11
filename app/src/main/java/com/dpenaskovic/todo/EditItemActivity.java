@@ -23,8 +23,8 @@ public class EditItemActivity extends Activity
         buttonSave = (Button)findViewById(R.id.button);
         buttonSave.setOnClickListener(new SaveButtonClickListener());
 
-        String textToEdit = getIntent().getStringExtra("text");
-        editItemArrayPosition = getIntent().getIntExtra("position", 0);
+        String textToEdit = getIntent().getStringExtra(Constants.INTENT_KEY_EDIT_TEXT);
+        editItemArrayPosition = getIntent().getIntExtra(Constants.INTENT_KEY_EDIT_POSITION, 0);
 
         etItem.setText(textToEdit);
         etItem.setSelection(textToEdit.length());
@@ -35,8 +35,8 @@ public class EditItemActivity extends Activity
         public void onClick(View view)
         {
             Intent intent = new Intent();
-            intent.putExtra("text", etItem.getText().toString());
-            intent.putExtra("position", editItemArrayPosition);
+            intent.putExtra(Constants.INTENT_KEY_EDIT_TEXT, etItem.getText().toString());
+            intent.putExtra(Constants.INTENT_KEY_EDIT_POSITION, editItemArrayPosition);
 
             setResult(RESULT_OK, intent);
             finish();

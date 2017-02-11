@@ -1,10 +1,10 @@
-# Pre-work - *Name of App Here*
+# Pre-work - ToDo
 
 ToDo is an android app that allows building a todo list and basic todo items management functionality including adding new items, editing and deleting an existing item.
 
 Submitted by: David Penaskovic
 
-Time spent: 5 hours spent in total
+Time spent: 5 hours
 
 ## User Stories
 
@@ -31,7 +31,7 @@ The following **additional** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
-<img src='http://i.imgur.com/link/to/your/gif/file.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='http://imgur.com/HQnuipk title=ToDo 'Video Walkthrough' width='' alt='Video Walkthrough' />
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 

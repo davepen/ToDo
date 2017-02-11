@@ -110,8 +110,8 @@ public class MainActivity extends Activity
             String tappedItemText = itemsAdapter.getItem(position);
 
             Intent intent = new Intent(MainActivity.this, EditItemActivity.class);
-            intent.putExtra("text", tappedItemText);
-            intent.putExtra("position", position);
+            intent.putExtra(Constants.INTENT_KEY_EDIT_TEXT, tappedItemText);
+            intent.putExtra(Constants.INTENT_KEY_EDIT_POSITION, position);
             startActivityForResult(intent, REQUEST_CODE_EDIT_ITEM);
         }
     }
