@@ -9,11 +9,14 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import com.raizlabs.android.dbflow.sql.language.SQLite;
+
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends Activity
 {
@@ -48,7 +51,7 @@ public class MainActivity extends Activity
         String itemText = etNewItem.getText().toString();
         itemsAdapter.add(itemText);
         etNewItem.setText(getString(R.string.enter));
-        writeItems();
+        databaseAddItem(itemText);
     }
 
     @Override
@@ -56,8 +59,8 @@ public class MainActivity extends Activity
     {
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE_EDIT_ITEM)
         {
-            String updatedText = intent.getExtras().getString("text");
-            int position = intent.getExtras().getInt("position", 0);
+            String updatedText = intent.getExtras().getString(Constants.INTENT_KEY_EDIT_TEXT);
+            int position = intent.getExtras().getInt(Constants.INTENT_KEY_EDIT_POSITION, 0);
 
             items.remove(position);
             itemsAdapter.insert(updatedText, position);
@@ -69,6 +72,14 @@ public class MainActivity extends Activity
 
     private void readItems()
     {
+        List<ToDoItem> toDoItemList = SQLite.select().from(ToDoItem.class).queryList();
+
+        for (ToDoItem toDoItem : toDoItemList)
+        {
+            items.add(toDoItem.name);
+        }
+
+        /*
         File filesDir = getFilesDir();
         File todoFile = new File(filesDir, "todo.txt");
         try
@@ -79,6 +90,27 @@ public class MainActivity extends Activity
         {
             items = new ArrayList<>();
         }
+        */
+    }
+
+
+    private void databaseAddItem(String name)
+    {
+        ToDoItem toDoItem = new ToDoItem();
+        toDoItem.setId(itemsAdapter.getCount());
+        toDoItem.setName(name);
+        toDoItem.save();
+
+        System.out.println("Added row id " + toDoItem.id);
+    }
+
+    private void databaseDeleteItem(int id)
+    {
+        ToDoItem toDoItem = new ToDoItem();
+        toDoItem.setId(id);
+        toDoItem.delete();
+
+        System.out.println("Deleted row id " + toDoItem.id);
     }
 
     private void writeItems()
@@ -118,11 +150,12 @@ public class MainActivity extends Activity
 
     private class ItemLongClickListener implements AdapterView.OnItemLongClickListener
     {
-        public boolean onItemLongClick(AdapterView<?> adapter, View item, int pos, long id)
+        public boolean onItemLongClick(AdapterView<?> adapter, View item, int position, long id)
         {
-            items.remove(pos);
+            items.remove(position);
             itemsAdapter.notifyDataSetChanged();
-            writeItems();
+            databaseDeleteItem(position);
+            //writeItems();
             return true;
         }
     }
