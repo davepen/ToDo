@@ -11,10 +11,6 @@ import android.widget.ListView;
 
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 
-import org.apache.commons.io.FileUtils;
-
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +29,7 @@ public class MainActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        readItems();
+        databaseReadItems();
 
         etNewItem = (EditText)findViewById(R.id.etNewItem);
         etNewItem.setOnClickListener(new ClickListener());
@@ -51,7 +47,7 @@ public class MainActivity extends Activity
         String itemText = etNewItem.getText().toString();
         itemsAdapter.add(itemText);
         etNewItem.setText(getString(R.string.enter));
-        databaseAddItem(itemText);
+        databaseSaveItem(itemsAdapter.getCount() - 1, itemText);
     }
 
     @Override
@@ -66,64 +62,58 @@ public class MainActivity extends Activity
             itemsAdapter.insert(updatedText, position);
             itemsAdapter.notifyDataSetChanged();
 
-            writeItems();
+            databaseSaveItem(position, updatedText);
         }
     }
 
-    private void readItems()
+    private void databaseReadItems()
     {
-        List<ToDoItem> toDoItemList = SQLite.select().from(ToDoItem.class).queryList();
+        items = new ArrayList<>();
 
+        List<ToDoItem> toDoItemList = SQLite.select().from(ToDoItem.class).queryList();
         for (ToDoItem toDoItem : toDoItemList)
         {
             items.add(toDoItem.name);
         }
-
-        /*
-        File filesDir = getFilesDir();
-        File todoFile = new File(filesDir, "todo.txt");
-        try
-        {
-            items = new ArrayList<>(FileUtils.readLines(todoFile, "UTF-8"));
-        }
-        catch (IOException ex)
-        {
-            items = new ArrayList<>();
-        }
-        */
     }
 
-
-    private void databaseAddItem(String name)
+    private void databaseSaveItem(int id, String text)
     {
         ToDoItem toDoItem = new ToDoItem();
-        toDoItem.setId(itemsAdapter.getCount());
-        toDoItem.setName(name);
+        toDoItem.setId(id);
+        toDoItem.setName(text);
         toDoItem.save();
 
-        System.out.println("Added row id " + toDoItem.id);
+        System.out.println("Saved row id " + toDoItem.id + " with " + text);
     }
 
     private void databaseDeleteItem(int id)
     {
+        // Make sure to delete this id first.
+        // it could be the end of the list. make sure
+        // we get it removed
         ToDoItem toDoItem = new ToDoItem();
         toDoItem.setId(id);
         toDoItem.delete();
 
         System.out.println("Deleted row id " + toDoItem.id);
-    }
+        //
+        // Then write the remaining objects back out
+        // so our ids are all in sync with the UI.
+        //
+        // This is horribly brute force. Agreed.
+        // And is not an acceptable, scalable solution.
+        //
 
-    private void writeItems()
-    {
-        File filesDir = getFilesDir();
-        File todoFile = new File(filesDir, "todo.txt");
-        try
+        int index = 0;
+        for (String name : items)
         {
-            FileUtils.writeLines(todoFile, items);
-        }
-        catch (IOException ex)
-        {
-            ex.printStackTrace();
+            toDoItem = new ToDoItem();
+            toDoItem.setId(index);
+            toDoItem.setName(name);
+            System.out.println("saved " + name + " at index " + index);
+            toDoItem.save();
+            index += 1;
         }
     }
 
@@ -155,7 +145,6 @@ public class MainActivity extends Activity
             items.remove(position);
             itemsAdapter.notifyDataSetChanged();
             databaseDeleteItem(position);
-            //writeItems();
             return true;
         }
     }
